@@ -3,42 +3,45 @@ import './App.css';
 
 
 function App() {
-    let text = 'Hello'
-    let list = [
-        1, 3, 4
+    const text = 'React search';
+    const list = [
+        {"objectId": 1, "title": "react"},
+        {"objectId": 2, "title": "react aaa"},
+        {"objectId": 3, "title": "hogehoge"},
     ];
 
+    const [searchTerm, setSearchTerm] = React.useState("react");
+
+    const handleSearch = value => {
+        setSearchTerm(value);
+    };
+
+    const searchedStories = list.filter(function(story) {
+        return story.title.includes(searchTerm);
+    });
 
   return (
     <div className="App">
-        {/* data */}
         <h1>{ text }</h1>
-        {/*array loop*/}
-        { list.map(i => (<div key={i}>{i}</div>)) }
-        {/*use component */}
-        <List list={list} />
-        {/*state */}
-        <Search/>
+        <Search onSearch={handleSearch} searchTerm={searchTerm}/>
+        <List list={searchedStories} />
     </div>
   );
 }
 
-const List = props => {
-    return props.list.map( i =>
-        (<div className="list" key={i} >{ i }</div>)
-    )
-};
+const List = ({list}) => list.map( i => <Item key={i.objectId} item={i}/>);
 
-const Search = () => {
-    const [searchTerm, setSearchTerm] = React.useState("");
-    const SearchChanged = (event) => (
-        setSearchTerm(event.target.value)
-    );
+const Item = ({item}) => (<div className="list" key={item.objectId} >{ item.title }</div>)
+
+const Search = ({onSearch, searchTerm}) => {
+    // const {onSearch, searchTerm} = props;
+    const handleChange = (event) => {
+        onSearch(event.target.value);
+    };
     return (
         <div>
             <label htmlFor="search">Search: </label>
-            <input id="search" type="text" onChange={SearchChanged} />
-            <h1>{ searchTerm }</h1>
+            <input id="search" type="text" onChange={handleChange} value={searchTerm} />
         </div>
     )
 };
