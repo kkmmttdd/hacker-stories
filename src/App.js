@@ -10,7 +10,8 @@ function App() {
         {"objectId": 3, "title": "hogehoge"},
     ];
 
-    const [searchTerm, setSearchTerm] = React.useState("react");
+    const [searchTerm, setSearchTerm] = React.useState(localStorage.getItem("searchTerm") || "react");
+    React.useEffect((() => { localStorage.setItem("searchTerm", searchTerm) }), [searchTerm]);
 
     const handleSearch = value => {
         setSearchTerm(value);
