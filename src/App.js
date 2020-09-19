@@ -18,41 +18,54 @@ const usePersistentState = (key, initialState) => {
 
 function App() {
     const text = 'React search';
-    const list = [
+    const initialList = [
         {"objectId": 1, "title": "react"},
         {"objectId": 2, "title": "react aaa"},
         {"objectId": 3, "title": "hogehoge"},
     ];
 
-    const [searchTerm, setSearchTerm] = usePersistentState("searchTerm2", "React");
+    const [searchTerm, setSearchTerm] = usePersistentState("searchTerm", "React");
+    const [list, setList] = React.useState(initialList);
 
     const handleSearch = value => {
         setSearchTerm(value);
     };
 
     const searchedStories = list.filter(function(story) {
-        return story.title.includes(searchTerm);
+        return story.title.toLowerCase().includes(searchTerm.toLowerCase());
     });
+
+    const onRemoveItem = (item) => {
+        console.log(item.objectId);
+        const newList = list.filter(i => (i.objectId != item.objectId));
+        setList(newList)
+    };
 
   return (
     <div className="App">
         <h1>{ text }</h1>
         <Search onSearch={handleSearch} searchTerm={searchTerm}/>
-        <List list={searchedStories} />
+        <List list={searchedStories} onRemoveItem={onRemoveItem} />
     </div>
   );
 }
 
-const List = ({list}) => list.map( i => <Item key={i.objectId} item={i}/>);
+const List = ({list, onRemoveItem}) => list.map( i => <Item key={i.objectId} item={i} onRemoveItem={onRemoveItem} />);
 
-const Item = ({item}) => (<div className="list" key={item.objectId} >{ item.title }</div>)
+const Item = ({ item, onRemoveItem }) => {
+    return (<div className="list" key={item.objectId}>
+        {item.title}
+        <span>
+            <button type="button" onClick={() => onRemoveItem(item)}>
+              Dismiss
+            </button>
+        </span>
+    </div>)
+};
 
 const Search = ({onSearch, searchTerm}) => {
-    const handleChange = (event) => {
-        onSearch(event.target.value);
-    };
     return (
-        <InputWithLabel id={"id"} htmlFor={"search"} value={searchTerm} onChange={handleChange} />
+        <InputWithLabel id={"id"} htmlFor={"search"} value={searchTerm} onChange={(event) => onSearch(event.target.value)} />
     )
 };
 
