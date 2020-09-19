@@ -16,6 +16,7 @@ const usePersistentState = (key, initialState) => {
     return [state, updater]
 };
 
+
 function App() {
     const text = 'React search';
     const initialList = [
@@ -25,7 +26,22 @@ function App() {
     ];
 
     const [searchTerm, setSearchTerm] = usePersistentState("searchTerm", "React");
-    const [list, setList] = React.useState(initialList);
+    const [list, setList] = React.useState([]);
+
+    const getAsyncStories = () => {
+        return new Promise((promise, reject) => {
+            setTimeout(() => {
+                promise(initialList)
+            }, 2000)
+        })
+    };
+
+    React.useEffect(
+        () => {
+            getAsyncStories().then((data) => setList(data))
+        },
+        [list]
+    );
 
     const handleSearch = value => {
         setSearchTerm(value);
