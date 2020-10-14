@@ -27,20 +27,29 @@ function App() {
 
     const [searchTerm, setSearchTerm] = usePersistentState("searchTerm", "React");
     const [list, setList] = React.useState([]);
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [isError, setIsError] = React.useState(false);
 
     const getAsyncStories = () => {
         return new Promise((promise, reject) => {
             setTimeout(() => {
                 promise(initialList)
-            }, 2000)
+            }, 2000);
+            // throw new Error("asfaf")
         })
     };
 
     React.useEffect(
         () => {
-            getAsyncStories().then((data) => setList(data))
+            setIsLoading(true);
+            getAsyncStories().then((data) => {
+                setList(data);
+                setIsLoading(false);
+            }).catch(() => {
+                setIsError(true)
+            });
         },
-        [list]
+        []
     );
 
     const handleSearch = value => {
@@ -61,7 +70,10 @@ function App() {
     <div className="App">
         <h1>{ text }</h1>
         <Search onSearch={handleSearch} searchTerm={searchTerm}/>
-        <List list={searchedStories} onRemoveItem={onRemoveItem} />
+        { isLoading ? (<div className="Loading">Loading ... </div>)
+            : (<List list={searchedStories} onRemoveItem={onRemoveItem} />)
+        }
+        { isError && <div className="isError">has error</div>}
     </div>
   );
 }
