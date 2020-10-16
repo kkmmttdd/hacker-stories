@@ -16,17 +16,31 @@ const usePersistentState = (key, initialState) => {
     return [state, updater]
 };
 
+const storyReducer = (state, action) => {
+    switch (action.type) {
+        case "SET":
+            return action.payload.stories;
+        case "REMOVE":
+            return state.filter(i => (i.objectId != action.payload.objectId));
+        default:
+            throw new Error("Unknown action")
+    }
+};
 
-function App() {
-    const text = 'React search';
-    const initialList = [
+
+    function App() {
+        const text = 'React search';
+        const initialList = [
         {"objectId": 1, "title": "react"},
         {"objectId": 2, "title": "react aaa"},
         {"objectId": 3, "title": "hogehoge"},
     ];
 
     const [searchTerm, setSearchTerm] = usePersistentState("searchTerm", "React");
-    const [list, setList] = React.useState([]);
+    const [stories, dispatchStories] = React.useReducer(
+        storyReducer
+        ,[]);
+
     const [isLoading, setIsLoading] = React.useState(false);
     const [isError, setIsError] = React.useState(false);
 
@@ -43,7 +57,7 @@ function App() {
         () => {
             setIsLoading(true);
             getAsyncStories().then((data) => {
-                setList(data);
+                dispatchStories({type: "SET", payload: {stories: data}});
                 setIsLoading(false);
             }).catch(() => {
                 setIsError(true)
@@ -56,14 +70,12 @@ function App() {
         setSearchTerm(value);
     };
 
-    const searchedStories = list.filter(function(story) {
+    const searchedStories = stories.filter(function(story) {
         return story.title.toLowerCase().includes(searchTerm.toLowerCase());
     });
 
     const onRemoveItem = (item) => {
-        console.log(item.objectId);
-        const newList = list.filter(i => (i.objectId != item.objectId));
-        setList(newList)
+        dispatchStories({type: "REMOVE", payload: {objectId: item.objectId}})
     };
 
   return (
