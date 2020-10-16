@@ -16,6 +16,8 @@ const usePersistentState = (key, initialState) => {
     return [state, updater]
 };
 
+const FETCH_URL =  "https://hn.algolia.com/api/v1/search?query=";
+
 const storyReducer = (state, action) => {
     switch (action.type) {
         case "START_FETCH":
@@ -65,10 +67,10 @@ const storyReducer = (state, action) => {
 
 
     const getAsyncStories = () => {
-        return new Promise((promise, reject) => {
-            setTimeout(() => {
-                promise(initialList)
-            }, 2000);
+        return new Promise((resolve, reject) => {
+            fetch(`${FETCH_URL}react`).then(res => res.json())
+                .then(result => resolve(result.hits))
+                .catch(err => reject(err));
             // throw new Error("asfaf")
         })
     };
@@ -77,9 +79,10 @@ const storyReducer = (state, action) => {
         () => {
             dispatchStories({type: "START_FETCH"});
             getAsyncStories().then((data) => {
+                console.log(data);
                 dispatchStories({type: "FETCH_SUCCEED", payload: {stories: data}});
-            }).catch(() => {
-                dispatchStories({type: "FETCH_ERROR"})
+            }).catch((err) => {
+                dispatchStories({type: "FETCH_ERROR", payload: {message: err}});
             });
         },
         []
