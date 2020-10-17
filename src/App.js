@@ -57,6 +57,8 @@ const storyReducer = (state, action) => {
     ];
 
     const [searchTerm, setSearchTerm] = usePersistentState("searchTerm", "React");
+    const [externalSearchTerm, setExternalSearchTerm] = React.useState()
+
     const [stories, dispatchStories] = React.useReducer(
         storyReducer
         ,{
@@ -78,13 +80,13 @@ const storyReducer = (state, action) => {
     React.useEffect(
         () => {
             dispatchStories({type: "START_FETCH"});
-            getAsyncStories(searchTerm).then((data) => {
+            getAsyncStories(externalSearchTerm).then((data) => {
                 dispatchStories({type: "FETCH_SUCCEED", payload: {stories: data}});
             }).catch((err) => {
                 dispatchStories({type: "FETCH_ERROR", payload: {message: err}});
             });
         },
-        [searchTerm]
+        [externalSearchTerm]
     );
 
     const handleSearch = value => {
@@ -95,6 +97,10 @@ const storyReducer = (state, action) => {
         dispatchStories({type: "REMOVE", payload: {objectId: item.objectId}})
     };
 
+    const handleSearchSubmit = (event) => {
+        setExternalSearchTerm(searchTerm)
+    };
+
   return (
     <div className="App">
         <h1>{ text }</h1>
@@ -103,6 +109,13 @@ const storyReducer = (state, action) => {
             : (<List list={stories.data} onRemoveItem={onRemoveItem} />)
         }
         { stories.hasError && <div className="hasError">has error</div>}
+        <button
+            type="button"
+            // disabled={!searchTerm}
+            onClick={handleSearchSubmit}
+        >
+            Submit
+        </button>
     </div>
   );
 }
