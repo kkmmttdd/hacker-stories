@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.css';
+import axios from 'axios'
 
 const InputWithLabel = ({id, htmlFor, value, onChange}) => {
     return (
@@ -40,7 +41,7 @@ const storyReducer = (state, action) => {
         case "REMOVE":
             return {
                 ...state,
-                data: state.filter(i => (i.objectId != action.payload.objectId))
+                data: state.data.filter(i => (i.objectId != action.payload.objectId))
             };
         default:
             throw new Error("Unknown action")
@@ -70,8 +71,8 @@ const storyReducer = (state, action) => {
 
     const getAsyncStories = (searchTerm) => {
         return new Promise((resolve, reject) => {
-            fetch(`${FETCH_URL}${searchTerm}`).then(res => res.json())
-                .then(result => resolve(result.hits))
+            axios.get(`${FETCH_URL}${searchTerm}`)
+                .then(result => resolve(result.data.hits))
                 .catch(err => reject(err));
             // throw new Error("asfaf")
         })
