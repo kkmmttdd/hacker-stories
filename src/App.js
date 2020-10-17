@@ -66,9 +66,9 @@ const storyReducer = (state, action) => {
         });
 
 
-    const getAsyncStories = () => {
+    const getAsyncStories = (searchTerm) => {
         return new Promise((resolve, reject) => {
-            fetch(`${FETCH_URL}react`).then(res => res.json())
+            fetch(`${FETCH_URL}${searchTerm}`).then(res => res.json())
                 .then(result => resolve(result.hits))
                 .catch(err => reject(err));
             // throw new Error("asfaf")
@@ -78,23 +78,18 @@ const storyReducer = (state, action) => {
     React.useEffect(
         () => {
             dispatchStories({type: "START_FETCH"});
-            getAsyncStories().then((data) => {
-                console.log(data);
+            getAsyncStories(searchTerm).then((data) => {
                 dispatchStories({type: "FETCH_SUCCEED", payload: {stories: data}});
             }).catch((err) => {
                 dispatchStories({type: "FETCH_ERROR", payload: {message: err}});
             });
         },
-        []
+        [searchTerm]
     );
 
     const handleSearch = value => {
         setSearchTerm(value);
     };
-
-    const searchedStories = stories.data.filter(function(story) {
-        return story.title.toLowerCase().includes(searchTerm.toLowerCase());
-    });
 
     const onRemoveItem = (item) => {
         dispatchStories({type: "REMOVE", payload: {objectId: item.objectId}})
@@ -105,7 +100,7 @@ const storyReducer = (state, action) => {
         <h1>{ text }</h1>
         <Search onSearch={handleSearch} searchTerm={searchTerm}/>
         { stories.isLoading ? (<div className="Loading">Loading ... </div>)
-            : (<List list={searchedStories} onRemoveItem={onRemoveItem} />)
+            : (<List list={stories.data} onRemoveItem={onRemoveItem} />)
         }
         { stories.hasError && <div className="hasError">has error</div>}
     </div>
