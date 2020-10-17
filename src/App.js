@@ -69,13 +69,20 @@ const storyReducer = (state, action) => {
         });
 
 
-    const getAsyncStories = (searchTerm) => {
-        return new Promise((resolve, reject) => {
-            axios.get(`${FETCH_URL}${searchTerm}`)
-                .then(result => resolve(result.data.hits))
-                .catch(err => reject(err));
-            // throw new Error("asfaf")
-        })
+    // const getAsyncStories = (searchTerm) => {
+    //     return new Promise((resolve, reject) => {
+    //         axios.get(`${FETCH_URL}${searchTerm}`)
+    //             .then(result => resolve(result.data.hits))
+    //             .catch(err => reject(err));
+    //         // throw new Error("asfaf")
+    //     })
+    // };
+
+    const getAsyncStories = async () => {
+        // const result = await axios.get(`${FETCH_URL}${searchTerm}`).catch(err => reject(err));
+        const result = await axios.get(`${FETCH_URL}${searchTerm}`);
+        // resolve(result.data.hits)
+        return result.data.hits
     };
 
     React.useEffect(
@@ -84,6 +91,7 @@ const storyReducer = (state, action) => {
             getAsyncStories(externalSearchTerm).then((data) => {
                 dispatchStories({type: "FETCH_SUCCEED", payload: {stories: data}});
             }).catch((err) => {
+                console.log(err);
                 dispatchStories({type: "FETCH_ERROR", payload: {message: err}});
             });
         },
